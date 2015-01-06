@@ -1,5 +1,4 @@
-FROM phusion/baseimage:0.9.11
-MAINTAINER Philipz <philipzheng@gmail.com>
+FROM phusion/baseimage:0.9.15
 
 RUN apt-get update
 RUN apt-get -y upgrade
@@ -23,15 +22,7 @@ RUN apt-get update && apt-get install -y hhvm
 # nginx site conf
 ADD ./nginx-site.conf /etc/nginx/sites-available/default
 
-# Install Wordpress
-ADD WordPress/ /usr/share/nginx/www
-ADD wp-config.php /usr/share/nginx/www/wp-config.php
-RUN chown -R www-data:www-data /usr/share/nginx/www
 
-# Download nginx helper plugin
-RUN curl -O `curl -i -s https://wordpress.org/plugins/nginx-helper/ | egrep -o "https://downloads.wordpress.org/plugin/[^']+"`
-RUN unzip -o nginx-helper.*.zip -d /usr/share/nginx/www/wp-content/plugins
-RUN chown -R www-data:www-data /usr/share/nginx/www/wp-content/plugins/nginx-helper
 
 RUN mkdir /etc/service/nginx
 ADD nginx.sh /etc/service/nginx/run
@@ -42,9 +33,6 @@ ADD hhvm.sh /etc/service/hhvm/run
 RUN sudo /usr/share/hhvm/install_fastcgi.sh
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-# Define mountable directories.
-VOLUME ["/usr/share/nginx/www","/var/log/nginx/"]
 
 # private expose
 EXPOSE 80
